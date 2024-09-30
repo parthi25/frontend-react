@@ -1,0 +1,131 @@
+
+// src/Quiz.js
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import { quizzes } from './data';
+import 'bootstrap/dist/css/bootstrap.min.css';
+
+const Quiz = () => {
+    const { quizId } = useParams();
+    const quiz = quizzes.find(q => q.id === parseInt(quizId));
+    const [seconds, setSeconds] = useState(30);
+    const [questionIndex, setQuestionIndex] = useState(0);
+    const [selectedAnswers, setSelectedAnswers] = useState(Array(quiz.questions.length).fill(null));
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        if (seconds > 0) {
+            const timerId = setTimeout(() => setSeconds(seconds - 1), 1000);
+            return () => clearTimeout(timerId);
+        } else {
+            goToNextQuestion();
+        }
+    }, [seconds]);
+
+    const handleOptionClick = (index) => {
+        const newAnswers = [...selectedAnswers];
+        newAnswers[questionIndex] = index;
+        setSelectedAnswers(newAnswers);
+    };
+
+    const goToNextQuestion = () => {
+        if (questionIndex < quiz.questions.length - 1) {
+            setQuestionIndex(questionIndex + 1);
+            setSeconds(30);
+        } else {
+            handleSubmit();
+        }
+    };
+
+    const handleSubmit = () => {
+        let correctAnswers = 0;
+        selectedAnswers.forEach((answer, index) => {
+            if (answer === quiz.questions[index].correct) {
+                correctAnswers++;
+            }
+        });
+        navigate('/results', { state: { score: correctAnswers, total: quiz.questions.length } });
+    };
+
+    return (
+        <div className="container mt-5">
+            <div className="card">
+                <div className="card-body">
+                    <h5 className="card-title">Question {questionIndex + 1}</h5>
+                    <p className="card-text">{quiz.questions[questionIndex].question}</p>
+                    <div className="list-group">
+                        {[1, 2, 3, 4].map(index => (
+                            <button
+                                key={index}
+                                className={`list-group-item list-group-item-action ${selectedAnswers[questionIndex] === index ? 'active' : ''}`}
+                                onClick={() => handleOptionClick(index)}
+                            >
+                                {quiz.questions[questionIndex][`option${index}`]}
+                            </button>
+                        ))}
+                    </div>
+                    <div className="d-flex justify-content-between align-items-center mt-3">
+                        {questionIndex < quiz.questions.length - 1 ? (
+                            <button className="btn btn-primary" onClick={goToNextQuestion}>Next</button>
+                        ) : (
+                            <button className="btn btn-success" onClick={handleSubmit}>Submit</button>
+                        )}
+                        <span className="badge badge-warning">{seconds} seconds left</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+export default Quiz;
+
+// src/Home.js
+import React from 'react';
+import { Link } from 'react-router-dom';
+import { quizzes } from './data';
+import 'bootstrap/dist/css/bootstrap.min.css';
+
+const Home = () => {
+    return (
+        <div className="container mt-5">
+            <div className="row">
+                {quizzes.map(quiz => (
+                    <div className="col-md-4 mb-4" key={quiz.id}>
+                        <div className="card h-100">
+                            <div className="card-body">
+                                <h5 className="card-title">{quiz.title}</h5>
+                                <p className="card-text">{quiz.description}</p>
+                                <Link to={`/quiz/${quiz.id}`} className="btn btn-primary">Start Quiz</Link>
+                            </div>
+                        </div>
+                    </div>
+                ))}
+            </div>
+        </div>
+    );
+};
+
+export default Home;
+
+
+// src/Results.js
+import React from 'react';
+import { useLocation } from 'react-router-dom';
+import 'bootstrap/dist/css/bootstrap.min.css';
+
+const Results = () => {
+    const location = useLocation();
+    const { score, total } = location.state;
+
+    return (
+        <div className="card">
+            <div className="card-body">
+                <h5 className="card-title">Quiz Results</h5>
+                <p className="card-text">You got {score} out of {total} correct!</p>
+            </div>
+        </div>
+    );
+};
+
+export default Results;
