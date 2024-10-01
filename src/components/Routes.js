@@ -1,7 +1,7 @@
 import React from "react";
 import { Routes, Route } from "react-router-dom";
 import Home from "./HomeBody";
-import Login from "./login"; // Ensure this path is correct
+
 import Quest from "./Quest";
 import Admin from "./Admin";
 import AdminView from "./AdminView";
