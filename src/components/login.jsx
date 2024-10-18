@@ -11,7 +11,7 @@ function Login({ onLogin }) {
     email: "",
     pass: "",
     cpass: "",
-    username: "",
+    user_name: "",
   });
   const [error, setError] = useState(null);
   const navigate = useNavigate();
@@ -36,7 +36,7 @@ function Login({ onLogin }) {
       return;
     }
 
-    const { username, email, pass: password } = formData;
+    const { user_name: username, email, pass: password } = formData;
     const url = name === "register" ? "http://127.0.0.1:8080/api/register" : "http://127.0.0.1:8080/api/login";
     const payload = name === "register" ? { userName: username, email, password } : { email, password };
 
@@ -45,7 +45,7 @@ function Login({ onLogin }) {
       const user = response.data;
       localStorage.setItem("com.questapp.user", JSON.stringify(user));
       onLogin(user); // Call onLogin function passed from App.jsx
-      setFormData({ email: "", pass: "", cpass: "", username: "" }); // Reset form data
+      setFormData({ email: "", pass: "", cpass: "", user_name: "" }); // Reset form data
       navigate(name === "register" ? "/" : "/react/home");
     } catch (error) {
       const errorMessage = name === "register" ? "Registration failed. Please try again." : "Invalid email or password. Please try again.";
@@ -74,10 +74,10 @@ function Login({ onLogin }) {
               <input
                 type="text"
                 className="form-control"
-                value={formData.username}
+                value={formData.user_name}
                 onChange={handleChange}
-                id="username"
-                name="username"
+                id="user_name"
+                name="user_name"
                 required
               />
             </div>
