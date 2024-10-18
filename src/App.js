@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { NavLink } from "react-router-dom";
 import "../node_modules/bootstrap/dist/css/bootstrap.min.css";
 import "../node_modules/bootstrap/dist/js/bootstrap.bundle.min.js";
@@ -38,16 +38,16 @@ const App = () => {
     localStorage.removeItem("com.questapp.user");
   };
 
-  const handleLogin = (userData) => {
+  const handleLogin = useCallback((userData) => {
     setUser(userData);
     setShowLogin(false);
-  };
+  }, []); // Dependencies are empty, so this won't change unless the component is remounted.
 
-  const toggleLogin = () => {
+  const toggleLogin = useCallback(() => {
     console.log("Toggle login clicked");
-    setShowLogin(!showLogin);
-    console.log(showLogin)
-  };
+    setShowLogin(prevShowLogin => !prevShowLogin); // Using functional update for better performance
+    console.log('login', showLogin);
+  }, []); // Same here, we want to keep this function stable.
 
   useEffect(() => {
     const storedUser = localStorage.getItem("com.questapp.user");
@@ -58,7 +58,7 @@ const App = () => {
     if (localStorage.getItem("admin")) {
       setAdmin(true);
     }
-  }, []);
+  }, [showLogin]);
 
   console.log("Render App component");
 
@@ -138,7 +138,7 @@ const App = () => {
           handleClose={closeEdit}
         />
       )}
-      {!user && showLogin && <Login onLogin={handleLogin} />}
+      {!user| user === "User created" && showLogin && <Login onLogin={handleLogin} />}
     </div>
   );
 };
