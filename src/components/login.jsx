@@ -1,25 +1,26 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import "../../src/App.css";
 import "../../node_modules/bootstrap/dist/css/bootstrap.min.css";
 import "./register.css";
 
-function Login({ onLogin }) {
-  const [name, setName] = useState("login");
+function Login() {
+  const [name, setName] = useState("login"); // Track whether it's login or register
   const [formData, setFormData] = useState({
     email: "",
     pass: "",
     cpass: "",
     user_name: "",
   });
-  const [error, setError] = useState(null);
-  const navigate = useNavigate();
+  const [error, setError] = useState(null); // Track form validation errors
+  const navigate = useNavigate(); // To navigate to different pages
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
+  // Validate password confirmation during registration
   const validatePassword = () => {
     if (formData.pass !== formData.cpass) {
       setError("Passwords do not match");
@@ -29,6 +30,7 @@ function Login({ onLogin }) {
     return true;
   };
 
+  // Handle form submission
   const handleFormSubmit = async (e) => {
     e.preventDefault();
 
@@ -43,24 +45,25 @@ function Login({ onLogin }) {
     try {
       const response = await axios.post(url, payload);
       const user = response.data;
+
+      // Store user data in localStorage
       localStorage.setItem("com.questapp.user", JSON.stringify(user));
-      onLogin(user); // Call onLogin function passed from App.jsx
-      setFormData({ email: "", pass: "", cpass: "", user_name: "" }); // Reset form data
+
+      // Navigate to the home page after successful login/registration
       navigate(name === "register" ? "/" : "/react/home");
+
+      // Reset form data
+      setFormData({ email: "", pass: "", cpass: "", user_name: "" });
+
     } catch (error) {
-      const errorMessage = name === "register" ? "Registration failed. Please try again." : "Invalid email or password. Please try again.";
+      // Set error message based on the type of error
+      const errorMessage = name === "register" 
+        ? "Registration failed. Please try again." 
+        : "Invalid email or password. Please try again.";
       setError(errorMessage);
       console.error("Error:", error.message);
     }
   };
-
-  useEffect(() => {
-    const storedUser = localStorage.getItem("com.questapp.user");
-    if (storedUser !== null && storedUser !== undefined) {
-      navigate("/react/home");
-    }
-  }, [navigate]);
-  
 
   return (
     <div className="App">
@@ -101,6 +104,7 @@ function Login({ onLogin }) {
               We'll never share your email with anyone else.
             </small>
           </div>
+
           <div className="form-group">
             <label htmlFor="exampleInputPassword1" className="text-dark form-label">
               Password
@@ -115,6 +119,7 @@ function Login({ onLogin }) {
               required
             />
           </div>
+
           {name === "register" && (
             <div className="mb-3">
               <label htmlFor="confirm_password" className="text-dark form-label">
@@ -133,6 +138,7 @@ function Login({ onLogin }) {
               {error && <small className="text-danger">{error}</small>}
             </div>
           )}
+
           <div className="r">
             <button
               type="submit"
